@@ -1,0 +1,194 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM template to deploy an AppSync Event API with a default channel and handlers
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: nodejs22.x
+    MemorySize: 768
+    Handler: index.handler
+    Environment:
+      Variables:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+        AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
+        POWERTOOLS_SERVICE_NAME: appsync-event
+        POWERTOOLS_METRICS_NAMESPACE: appsync-event
+
+Resources:
+  DynamoDBTableName:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Events
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  AppSyncEventApi:
+    Type: AWS::AppSync::Api
+    Properties:
+      Name: EventApi
+      EventConfig:
+        AuthProviders:
+          - AuthType: API_KEY
+        ConnectionAuthModes:
+          - AuthType: API_KEY
+        DefaultPublishAuthModes:
+          - AuthType: API_KEY
+        DefaultSubscribeAuthModes:
+          - AuthType: API_KEY
+
+  AppSyncEventApiKey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId: !GetAtt AppSyncEventApi.ApiId
+      Description: Default API key for Event API
+
+  AppSyncEventApiChannelNamespace:
+    Type: AWS::AppSync::ChannelNamespace
+    Properties:
+      ApiId: !GetAtt AppSyncEventApi.ApiId
+      Name: EventApiChannelNamespace
+      HandlerConfigs:
+        OnPublish:
+          Behavior: DIRECT
+          Integration:
+            DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
+            LambdaConfig:
+              InvokeType: REQUEST_RESPONSE
+        OnSubscribe:
+          Behavior: DIRECT
+          Integration:
+            DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
+            LambdaConfig:
+              InvokeType: REQUEST_RESPONSE
+
+  AppSyncDynamoDBDataSourceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: AppSyncDynamoDBDataSourcePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DeleteItem
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:UpdateItem
+                  - dynamodb:BatchGetItem
+                  - dynamodb:BatchWriteItem
+                Resource:
+                  - !GetAtt DynamoDBTableName.Arn
+
+  AppSyncDynamoDBDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt AppSyncEventApi.ApiId
+      Name: DynamoDBDatSource
+      Description: Testing the DynamoDB DataSource Type
+      Type: AMAZON_DYNAMODB
+      ServiceRoleArn: !GetAtt AppSyncDynamoDBDataSourceRole.Arn
+      DynamoDBConfig:
+        TableName: !Ref DynamoDBTableName
+        AwsRegion: !Ref AWS::Region
+
+  AppSyncLambdaDataSourceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: AppSyncLambdaDataSourcePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !GetAtt EchoFunction.Arn
+                  - !Sub ${EchoFunction.Arn}:* # Allow all versions and aliases of the function
+
+  AppSyncLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt AppSyncEventApi.ApiId
+      Name: LambdaDatSource
+      Description: Testing the Lambda DataSource Type
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt EchoFunction.Arn
+
+  EchoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/backend/functions/echo
+      Policies:
+        - AWSLambdaBasicExecutionRole
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: false
+        OutExtension:
+          - .js=.mjs
+        Target: es2020
+        Sourcemap: false
+        EntryPoints:
+          - index.mjs
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+        External:
+          - '@aws-sdk/client-secrets-manager'
+
+Outputs:
+  EventApiId:
+    Description: AppSync Event API ID
+    Value: !GetAtt AppSyncEventApi.ApiId
+
+  EventApiArn:
+    Description: AppSync Event API ARN
+    Value: !GetAtt AppSyncEventApi.ApiArn
+
+  EventApiHttpEndpoint:
+    Description: AppSync Event API HTTP endpoint
+    Value: !GetAtt AppSyncEventApi.Dns.Http
+
+  EventApiRealtime:
+    Description: AppSync Event API Realtime endpoint
+    Value: !GetAtt AppSyncEventApi.Dns.Realtime
+
+  IAMRoleArn:
+    Description: IAM Role ARN for AppSync Event API
+    Value: !GetAtt AppSyncDynamoDBDataSourceRole.Arn
+
+  DynamoDBTableName:
+    Description: DynamoDB Table Name
+    Value: !Ref DynamoDBTableName
