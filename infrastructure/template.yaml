@@ -58,10 +58,10 @@ Resources:
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
       Name: AndMoreChat
-      # CodeS3Location: !Sub
-      #   - "s3://${Bucket}/event-api.mjs"
-      #   - Bucket:
-      #       Fn::ImportValue: appsync-events-s3-S3Bucket
+      CodeS3Location: !Sub
+        - "s3://${Bucket}/event-api.mjs"
+        - Bucket:
+            Fn::ImportValue: appsync-events-s3-S3Bucket
       HandlerConfigs:
         OnSubscribe:
           # Behavior: DIRECT
@@ -114,7 +114,7 @@ Resources:
     Type: AWS::AppSync::DataSource
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
-      Name: DynamoDBDatSource
+      Name: DynamoDBDataSource
       Description: Testing the DynamoDB DataSource Type
       Type: AMAZON_DYNAMODB
       ServiceRoleArn: !GetAtt AppSyncDynamoDBDataSourceRole.Arn
