@@ -50,7 +50,7 @@ jobs:
 
           sam --info
 
-          sam build
+          sam build \
           --config-env appsync
 
           sam deploy \
