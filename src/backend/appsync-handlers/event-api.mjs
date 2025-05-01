@@ -17,7 +17,7 @@ export const onSubscribe = {
 
         const id = util.autoId();
         return ddb.put({
-            key: { id },
+            key: { id: room },
             item: {
                 id: room,
                 channel,
