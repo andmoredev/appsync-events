@@ -1,7 +1,7 @@
 import * as ddb from '@aws-appsync/utils/dynamodb'
 import { util } from '@aws-appsync/utils'
 
-const TABLE = 'appsync-events-app-DynamoDBTableName-78A9Z78JKDWE'
+const TABLE = 'appsync-events-app-DynamoDBTableName-NBAUU4K2D9NY'
 
 export const onPublish = {
   request(ctx) {

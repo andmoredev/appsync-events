@@ -71,9 +71,14 @@ Resources:
             LambdaConfig:
               InvokeType: REQUEST_RESPONSE
         OnPublish:
-          Behavior: CODE
+          Behavior: DIRECT
           Integration:
-            DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+            DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
+            LambdaConfig:
+              InvokeType: REQUEST_RESPONSE
+          # Behavior: CODE
+          # Integration:
+          #   DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
 
 
   AppSyncDynamoDBDataSourceRole:
