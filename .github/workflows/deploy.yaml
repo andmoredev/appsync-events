@@ -25,7 +25,7 @@ jobs:
       - name: Build and Deploy S3
         run: |
           sam build \
-          -- template template.s3.yaml \
+          --template template.s3.yaml \
           --config-env s3
 
           sam deploy \
@@ -51,7 +51,7 @@ jobs:
           --config-env appsync
 
           sam deploy \
-          -- config-env appsync \
+          --config-env appsync \
           --s3-bucket ${{ secrets.ARTIFACTS_BUCKET_NAME }} \
           --no-fail-on-empty-changeset \
           --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
