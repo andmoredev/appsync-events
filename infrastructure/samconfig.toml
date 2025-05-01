@@ -1,8 +1,15 @@
 version = 0.1
-[default.deploy.parameters]
-stack_name = "appsync-events"
-resolve_s3 = true
-s3_prefix = "appsync-events"
+[appsync.deploy.parameters]
+stack_name = "appsync-events-app"
+s3_prefix = "appsync-events-app"
 region = "us-east-1"
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
+
+[s3.deploy.parameters]
+stack_name = "appsync-events-s3"
+s3_prefix = "appsync-events-s3"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+

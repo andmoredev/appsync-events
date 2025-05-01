@@ -1,0 +1,7 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "appsync-events-s3"
+s3_prefix = "appsync-events-s3"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

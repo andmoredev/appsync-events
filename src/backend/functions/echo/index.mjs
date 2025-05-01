@@ -3,14 +3,15 @@ import { AppSyncEventsResolver } from '@aws-lambda-powertools/event-handler/apps
 
 const app = new AppSyncEventsResolver();
 
-app.onPublish('/EventApiChannelNamespace/channel', async (payload) => {
+app.onPublish("/AndMoreChat/*", async (payload) => {
   const response = {
     processed: true,
-    original_payload: payload,
+    original_payload: payload
   };
-
-  console.log('Response:', response);
   return response;
+});
+
+app.onSubscribe("/AndMoreChat/*", async (payload) => {
 });
 
 export const handler = initializePowertools(async (event, context) => {

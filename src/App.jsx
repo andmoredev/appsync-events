@@ -19,11 +19,12 @@ export default function App() {
       return
     }
     let timeoutID
-    const pr = events.connect(`/EventApiChannelNamespace/${room}`)
+    const pr = events.connect(`/AndMoreChat/${room}`)
     pr.then((channel) => {
       channel.subscribe({
         next: (data) => {
-          setMessages((messages) => [...messages, data.event.message])
+          console.log('Received message:', data)
+          setMessages((messages) => [...messages, data.event.original_payload.message])
           if (timeoutID) {
             clearTimeout(timeoutID);
           }
@@ -43,7 +44,8 @@ export default function App() {
 
   return (
     <div className='max-w-screen-md mx-auto'>
-      <h2 className='my-4 p-4 font-semibold text-xl'>AppSync Events - Messages</h2>
+      <h2 className='my-4 p-4 font-semibold text-xl'>AndMoreChat</h2>
+      <h3>Chat with anybody anytime :)</h3>
       <button
         type="button"
         className='border rounded-md px-4 py-2 items-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-sky-200  shadow hover:bg-sky-200/90'
@@ -55,7 +57,7 @@ export default function App() {
           }
         }}
       >
-        set room
+        Create a chat room
       </button>
       <div className='my-4 border-b-2  border-sky-500 py-1 flex justify-between'>
         <div>
@@ -64,12 +66,13 @@ export default function App() {
               Currently in room: <b>{room}</b>
             </span>
           ) : (
-            <span>Pick a room to get started</span>
+            <span>No room selected</span>
           )}
         </div>
         <div className='flex items-center uppercase text-xs tracking-wider font-semibold'>
           <div className='mr-2'>Messages count:</div>
-          <span ref={counterRef} className='transition-all inline-flex items-center rounded-md bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-900'>{messages.length}</span></div>
+          <span ref={counterRef} className='transition-all inline-flex items-center rounded-md bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-900'>{messages.length}</span>
+        </div>
       </div>
       <section id="messages" className='space-y-2'>
         {messages.map((message, index) => (
@@ -92,7 +95,7 @@ export default function App() {
             e.preventDefault()
             const event = { message }
             setMessage('')
-            await events.post(`/EventApiChannelNamespace/${room}`, event)
+            await events.post(`/AndMoreChat/${room}`, event)
           }}
         >
           <input

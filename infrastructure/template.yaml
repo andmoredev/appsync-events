@@ -8,9 +8,10 @@ Globals:
     Runtime: nodejs22.x
     MemorySize: 768
     Handler: index.handler
+    Architectures:
+      - arm64
     Environment:
       Variables:
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
         AWS_ACCOUNT_ID: !Sub ${AWS::AccountId}
         POWERTOOLS_SERVICE_NAME: appsync-event
         POWERTOOLS_METRICS_NAMESPACE: appsync-event
@@ -19,12 +20,11 @@ Resources:
   DynamoDBTableName:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: Events
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: chatRoom
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: chatRoom
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
@@ -43,6 +43,10 @@ Resources:
           - AuthType: API_KEY
         DefaultSubscribeAuthModes:
           - AuthType: API_KEY
+        LogConfig:
+          LogLevel: ALL
+          CloudWatchLogsRoleArn: arn:aws:iam::965116670064:role/service-role/appsync-api-logs-us-east-1
+
 
   AppSyncEventApiKey:
     Type: AWS::AppSync::ApiKey
@@ -54,20 +58,21 @@ Resources:
     Type: AWS::AppSync::ChannelNamespace
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
-      Name: EventApiChannelNamespace
+      Name: AndMoreChat
+      CodeS3Location: s3://appsync-events-s3-s3bucket-unytvxy92mg8/event-api.mjs
+      # CodeHandlers: "import { util } from '@aws-appsync/utils';\n\n/**\n * Defines the request and response handlers that run when a batch of events are published to channels in this namespace.\n*/\nexport const onPublish = {\n  request(ctx) {\n    // Build the request for your data source\n    return {};\n  },\n  response(ctx) {\n    // Use the result to enhance your events\n    const { error, result } = ctx;\n    return ctx.events;\n  }\n};\n\n/**\n * Defines the request and response handlers that run when a client subscribes to a channel in this namespace.\n */\nexport const onSubscribe = {\n  request(ctx) {\n    // Build the request for your data source\n    return {};\n  },\n  response(ctx) {\n    // Act on the result:\n    const { error, result } = ctx;\n    // util.unauthorized();\n  }\n};"
       HandlerConfigs:
-        OnPublish:
-          Behavior: DIRECT
-          Integration:
-            DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
-            LambdaConfig:
-              InvokeType: REQUEST_RESPONSE
         OnSubscribe:
           Behavior: DIRECT
           Integration:
             DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
             LambdaConfig:
               InvokeType: REQUEST_RESPONSE
+        OnPublish:
+          Behavior: CODE
+          Integration:
+            DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+
 
   AppSyncDynamoDBDataSourceRole:
     Type: AWS::IAM::Role
@@ -139,7 +144,7 @@ Resources:
     Type: AWS::AppSync::DataSource
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
-      Name: LambdaDatSource
+      Name: LambdaDataSource
       Description: Testing the Lambda DataSource Type
       Type: AWS_LAMBDA
       ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
