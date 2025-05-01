@@ -23,6 +23,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Build and Deploy S3
+        working-directory: infrastructure
         run: |
           sam build \
           --template template.s3.yaml \
@@ -37,10 +38,12 @@ jobs:
 
       - name: Update AppSync Code Handler by uploading to s3
         run: |
+          stackOutputJson=$(aws cloudformation describe-stacks --output json --stack-name appsync-events-s3 --query "Stacks[0].Outputs")
           codeHandlerBucket=$(echo $stackOutputJson | jq -r '.[] | select(.OutputKey=="Bucket") | .OutputValue')
           aws s3 cp ./src/backend/appsync-handlers/event-api.mjs s3://${codeHandlerBucket}/event-api.mjs
 
       - name: Build and Deploy AppSync Event API
+        working-directory: infrastructure
         run: |
           npm install -g esbuild
           npm ci
