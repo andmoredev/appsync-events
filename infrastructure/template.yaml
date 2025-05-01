@@ -46,10 +46,6 @@ Resources:
         LogConfig:
           LogLevel: ALL
           CloudWatchLogsRoleArn: arn:aws:iam::965116670064:role/service-role/appsync-api-logs-us-east-1
-      EventLogConfig:
-        LogLevel: ALL
-        CloudWatchLogsRoleArn: arn:aws:iam::965116670064:role/service-role/appsync-api-logs-us-east-1
-
 
   AppSyncEventApiKey:
     Type: AWS::AppSync::ApiKey
