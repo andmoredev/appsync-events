@@ -4,7 +4,7 @@ import { join } from 'path';
 // File paths
 const handlerFilePath = join(process.cwd(), 'src/backend/appsync-handlers/event-api.mjs');
 const templateFilePath = join(process.cwd(), 'infrastructure/template.yaml');
-const outputFilePath = join(process.cwd(), 'infrastructure/template-updated.yaml');
+const outputFilePath = join(process.cwd(), 'infrastructure/template.yaml');
 
 // Read the handler file
 const handlerCode = readFileSync(handlerFilePath, 'utf8');
