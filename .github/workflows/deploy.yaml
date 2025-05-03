@@ -42,6 +42,11 @@ jobs:
           codeHandlerBucket=$(echo $stackOutputJson | jq -r '.[] | select(.OutputKey=="Bucket") | .OutputValue')
           aws s3 cp ./src/backend/appsync-handlers/event-api.mjs s3://${codeHandlerBucket}/event-api.mjs
 
+          npm i -g replace-in-files-cli
+          fileContent=$(cat ./src/backend/appsync-handlers/event-api.mjs) # Read the file content as a string
+          replace-in-files --string='{{StringCodeHandler}}' --replacement=$fileContent ./infrastructure/template.yaml
+          cat ./infrastructure/template.yaml
+
       - name: Build and Deploy AppSync Event API
         working-directory: infrastructure
         run: |

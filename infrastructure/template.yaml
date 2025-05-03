@@ -58,12 +58,7 @@ Resources:
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
       Name: AndMoreChat
-      CodeHandlers:
-        Fn::Transform:
-          Name: AWS::Include
-          Parameters:
-            Location: ../src/backend/appsync-handlers/event-api.mjs
-
+      CodeHandlers: {{StringCodeHandler}}
       # CodeS3Location: !Sub
       #   - "s3://${Bucket}/event-api.mjs"
       #   - Bucket:
