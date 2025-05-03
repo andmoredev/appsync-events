@@ -60,16 +60,19 @@ Resources:
       EventConfig:
         AuthProviders:
           - AuthType: API_KEY
+          - AuthType: AMAZON_COGNITO_USER_POOLS
+            CognitoConfig:
+              UserPoolId: !Ref CognitoUserPoolId
+              AwsRegion: !Ref AWS::Region
         ConnectionAuthModes:
           - AuthType: API_KEY
+          - AuthType: AMAZON_COGNITO_USER_POOLS
         DefaultPublishAuthModes:
           - AuthType: API_KEY
+          - AuthType: AMAZON_COGNITO_USER_POOLS
         DefaultSubscribeAuthModes:
           - AuthType: API_KEY
-        LogConfig:
-          LogLevel: ALL
-          CloudWatchLogsRoleArn: arn:aws:iam::965116670064:role/service-role/appsync-api-logs-us-east-1
-
+          - AuthType: AMAZON_COGNITO_USER_POOLS
   AppSyncEventApiKey:
     Type: AWS::AppSync::ApiKey
     Properties:
