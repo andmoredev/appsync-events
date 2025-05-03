@@ -3,7 +3,6 @@ import { util } from '@aws-appsync/utils'
 
 export const onSubscribe = {
   request(event) {
-    // Did I Get it?? Am I going to cause an updated?
     if (event.info.channel.segments.length > 2) {
       util.error('Invalid Room Name - To Many Segments');
     }
