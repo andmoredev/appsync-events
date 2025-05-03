@@ -9,11 +9,10 @@ const outputFilePath = join(process.cwd(), 'infrastructure/template.yaml');
 // Read the handler file
 const handlerCode = readFileSync(handlerFilePath, 'utf8');
 
-// Escape the code while preserving meaningful spaces
+// Escape the code while preserving indentation
 const escapedCode = handlerCode
   .replace(/\n/g, '\\n') // Replace newlines with \n
-  .replace(/"/g, '\\"') // Escape double quotes
-  .replace(/\s{2,}/g, ' '); // Replace multiple spaces with a single space
+  .replace(/"/g, '\\"'); // Escape double quotes
 
 // Read the template file
 let templateContent = readFileSync(templateFilePath, 'utf8');
