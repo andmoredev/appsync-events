@@ -58,7 +58,7 @@ Resources:
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
       Name: AndMoreChat
-      CodeHandlers: {{StringCodeHandler}}
+      CodeHandlers: "{{StringCodeHandler}}"
       # CodeS3Location: !Sub
       #   - "s3://${Bucket}/event-api.mjs"
       #   - Bucket:
