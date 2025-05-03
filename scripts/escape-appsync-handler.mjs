@@ -9,7 +9,7 @@ const outputFilePath = join(process.cwd(), 'infrastructure/template.yaml');
 // Read the handler file
 const handlerCode = readFileSync(handlerFilePath, 'utf8');
 
-// Escape the code while preserving indentation
+// Escape the code
 const escapedCode = handlerCode
   .replace(/\n/g, '\\n') // Replace newlines with \n
   .replace(/"/g, '\\"'); // Escape double quotes

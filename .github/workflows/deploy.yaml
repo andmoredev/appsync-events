@@ -42,7 +42,7 @@ jobs:
           codeHandlerBucket=$(echo $stackOutputJson | jq -r '.[] | select(.OutputKey=="Bucket") | .OutputValue')
           aws s3 cp ./src/backend/appsync-handlers/event-api.mjs s3://${codeHandlerBucket}/event-api.mjs
 
-          node scripts/verify-escape.mjs
+          node scripts/escape-appsync-handler.mjs
           cat ./infrastructure/template.yaml
 
       - name: Build and Deploy AppSync Event API
