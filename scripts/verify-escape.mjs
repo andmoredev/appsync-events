@@ -4,16 +4,16 @@ import { join } from 'path';
 // File paths
 const handlerFilePath = join(process.cwd(), 'src/backend/appsync-handlers/event-api.mjs');
 const templateFilePath = join(process.cwd(), 'infrastructure/template.yaml');
-const outputFilePath = join(process.cwd(), 'infrastructure/template.yaml');
+const outputFilePath = join(process.cwd(), 'infrastructure/template-updated.yaml');
 
 // Read the handler file
 const handlerCode = readFileSync(handlerFilePath, 'utf8');
 
-// Escape the code and remove whitespace
+// Escape the code while preserving meaningful spaces
 const escapedCode = handlerCode
   .replace(/\n/g, '\\n') // Replace newlines with \n
   .replace(/"/g, '\\"') // Escape double quotes
-  .replace(/\s+/g, ''); // Remove all whitespace
+  .replace(/\s{2,}/g, ' '); // Replace multiple spaces with a single space
 
 // Read the template file
 let templateContent = readFileSync(templateFilePath, 'utf8');
