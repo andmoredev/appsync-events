@@ -4,7 +4,7 @@ import { util } from '@aws-appsync/utils'
 export const onSubscribe = {
   request(event) {
     if (event.info.channel.segments.length > 2) {
-      util.error('Invalid Room Name - To Many Segments');
+      util.error('Invalid Room Name - Too Many Segments');
     }
 
     if (event.info.channel.segments.includes('*')) {
