@@ -58,17 +58,18 @@ Resources:
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
       Name: AndMoreChat
-      CodeS3Location: !Sub
-        - "s3://${Bucket}/event-api.mjs"
-        - Bucket:
-            Fn::ImportValue: appsync-events-s3-S3Bucket
+      CodeHandlers:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: ../src/backend/appsync-handlers/event-api.mjs
+
+      # CodeS3Location: !Sub
+      #   - "s3://${Bucket}/event-api.mjs"
+      #   - Bucket:
+      #       Fn::ImportValue: appsync-events-s3-S3Bucket
       HandlerConfigs:
         OnSubscribe:
-          # Behavior: DIRECT
-          # Integration:
-          #   DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
-          #   LambdaConfig:
-          #     InvokeType: REQUEST_RESPONSE
           Behavior: CODE
           Integration:
             DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
