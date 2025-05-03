@@ -43,8 +43,10 @@ jobs:
           aws s3 cp ./src/backend/appsync-handlers/event-api.mjs s3://${codeHandlerBucket}/event-api.mjs
 
           npm i -g replace-in-files-cli
-          fileContent=$(cat ./src/backend/appsync-handlers/event-api.mjs) # Read the file content as a string
-          replace-in-files --string='{{StringCodeHandler}}' --replacement=$fileContent ./infrastructure/template.yaml
+          escapedCode=$(cat ./src/backend/appsync-handlers/event-api.mjs | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g' | tr -d '[:space:]')
+          replace-in-files --string='{{StringCodeHandler}}' --replacement="$escapedCode" ./infrastructure/template.yaml
+
+          # Output the updated template.yaml for verification
           cat ./infrastructure/template.yaml
 
       - name: Build and Deploy AppSync Event API
