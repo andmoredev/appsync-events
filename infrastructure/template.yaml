@@ -16,7 +16,30 @@ Globals:
         POWERTOOLS_SERVICE_NAME: appsync-event
         POWERTOOLS_METRICS_NAMESPACE: appsync-event
 
+Parameters:
+  CognitoUserPoolId:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/andmoredev-auth/CognitoUserPoolId'
+
+  CognitoUserPoolArn:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/andmoredev-auth/CognitoUserPoolArn'
+
+  CognitoUserPoolUrl:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/andmoredev-auth/CognitoUserPoolUrl'
+
 Resources:
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPoolId
+      SupportedIdentityProviders:
+        - COGNITO
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
   DynamoDBTableName:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -59,10 +82,6 @@ Resources:
       ApiId: !GetAtt AppSyncEventApi.ApiId
       Name: AndMoreChat
       CodeHandlers: "{{StringCodeHandler}}"
-      # CodeS3Location: !Sub
-      #   - "s3://${Bucket}/event-api.mjs"
-      #   - Bucket:
-      #       Fn::ImportValue: appsync-events-s3-S3Bucket
       HandlerConfigs:
         OnSubscribe:
           Behavior: CODE
@@ -74,7 +93,6 @@ Resources:
             DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
             LambdaConfig:
               InvokeType: REQUEST_RESPONSE
-
 
   AppSyncDynamoDBDataSourceRole:
     Type: AWS::IAM::Role
