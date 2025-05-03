@@ -15,7 +15,6 @@ export const onSubscribe = {
     const room = event.info.channel.segments[1]
     const timestamp = util.time.nowEpochMilliSeconds();
 
-    const id = util.autoId();
     return ddb.put({
       key: { id: room },
       item: {
