@@ -215,6 +215,8 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - index.mjs
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
 
   AppSyncEventHandler:
     Type: AWS::Serverless::Function
@@ -233,6 +235,8 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - index.mjs
+        Banner:
+          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
 
 
 Outputs:
