@@ -94,15 +94,15 @@ Resources:
         OnPublish:
           Behavior: DIRECT
           Integration:
-            DataSourceName: !GetAtt AppSyncLambdaPowertoolsDataSource.Name
+            DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
             LambdaConfig:
               InvokeType: REQUEST_RESPONSE
 
-  AppSyncEventApiChannelNamespaceWithoutPowertools:
+  AppSyncEventApiChannelNamespaceWithPowertools:
     Type: AWS::AppSync::ChannelNamespace
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
-      Name: AndMoreChatWithoutPowertools
+      Name: AndMoreChatWithPowertools
       CodeHandlers: "{{StringCodeHandler}}"
       HandlerConfigs:
         OnSubscribe:
@@ -112,10 +112,9 @@ Resources:
         OnPublish:
           Behavior: DIRECT
           Integration:
-            DataSourceName: !GetAtt AppSyncLambdaWithoutPowertoolsDataSource.Name
+            DataSourceName: !GetAtt AppSyncLambdaWithPowertoolsDataSource.Name
             LambdaConfig:
               InvokeType: REQUEST_RESPONSE
-
 
   AppSyncDynamoDBDataSourceRole:
     Type: AWS::IAM::Role
@@ -174,21 +173,21 @@ Resources:
                 Resource:
                   - !GetAtt AppSyncEventHandlerWithPowertools.Arn
                   - !Sub ${AppSyncEventHandlerWithPowertools.Arn}:*
-                  - !GetAtt AppSyncEventHandlerWithoutPowertools.Arn
-                  - !Sub ${AppSyncEventHandlerWithoutPowertools.Arn}:*
+                  - !GetAtt AppSyncEventHandler.Arn
+                  - !Sub ${AppSyncEventHandler.Arn}:*
 
-  AppSyncLambdaPowertoolsDataSource:
+  AppSyncLambdaWithPowertoolsDataSource:
     Type: AWS::AppSync::DataSource
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
-      Name: LambdaDataSource
+      Name: LambdaDataSourceWithPowertools
       Description: Testing the Lambda DataSource Type
       Type: AWS_LAMBDA
       ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
       LambdaConfig:
         LambdaFunctionArn: !GetAtt AppSyncEventHandlerWithPowertools.Arn
 
-  AppSyncLambdaWithoutPowertoolsDataSource:
+  AppSyncLambdaDataSource:
     Type: AWS::AppSync::DataSource
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
@@ -197,7 +196,7 @@ Resources:
       Type: AWS_LAMBDA
       ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
       LambdaConfig:
-        LambdaFunctionArn: !GetAtt AppSyncEventHandlerWithoutPowertools.Arn
+        LambdaFunctionArn: !GetAtt AppSyncEventHandler.Arn
 
   AppSyncEventHandlerWithPowertools:
     Type: AWS::Serverless::Function
@@ -217,7 +216,7 @@ Resources:
         EntryPoints:
           - index.mjs
 
-  AppSyncEventHandlerWithoutPowertools:
+  AppSyncEventHandler:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ../src/backend/functions/without-powertools
