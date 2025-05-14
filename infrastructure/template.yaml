@@ -153,8 +153,10 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !GetAtt AppSyncEventHandler.Arn
-                  - !Sub ${AppSyncEventHandler.Arn}:* # Allow all versions and aliases of the function
+                  - !GetAtt AppSyncEventHandlerWithPowertools.Arn
+                  - !Sub ${AppSyncEventHandlerWithPowertools.Arn}:*
+                  - !GetAtt AppSyncEventHandlerWithoutPowertools.Arn
+                  - !Sub ${AppSyncEventHandlerWithoutPowertools.Arn}:*
 
   AppSyncLambdaDataSource:
     Type: AWS::AppSync::DataSource
@@ -165,7 +167,7 @@ Resources:
       Type: AWS_LAMBDA
       ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
       LambdaConfig:
-        LambdaFunctionArn: !GetAtt AppSyncEventHandler.Arn
+        LambdaFunctionArn: !GetAtt AppSyncEventHandlerWithPowertools.Arn
 
   AppSyncEventHandlerWithPowertools:
     Type: AWS::Serverless::Function

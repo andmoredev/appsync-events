@@ -1,5 +1,4 @@
-import { initializePowertools, logger } from '../shared/lambda-powertools.mjs';
-import { AppSyncEventsResolver } from '@aws-lambda-powertools/event-handler/appsync-events';
+import { initializePowertools } from '../shared/lambda-powertools.mjs';
 
 const app = new AppSyncEventsResolver();
 
