@@ -18,7 +18,7 @@ const escapedCode = handlerCode
 let templateContent = readFileSync(templateFilePath, 'utf8');
 
 // Replace the placeholder with the escaped code
-templateContent = templateContent.replace('{{StringCodeHandler}}', escapedCode);
+templateContent = templateContent.replaceAll('{{StringCodeHandler}}', escapedCode);
 
 // Write the updated template to a new file
 writeFileSync(outputFilePath, templateContent, 'utf8');
