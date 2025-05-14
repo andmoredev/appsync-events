@@ -73,6 +73,7 @@ Resources:
         DefaultSubscribeAuthModes:
           - AuthType: API_KEY
           - AuthType: AMAZON_COGNITO_USER_POOLS
+
   AppSyncEventApiKey:
     Type: AWS::AppSync::ApiKey
     Properties:
@@ -116,14 +117,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - dynamodb:DeleteItem
-                  - dynamodb:GetItem
                   - dynamodb:PutItem
-                  - dynamodb:Query
-                  - dynamodb:Scan
-                  - dynamodb:UpdateItem
-                  - dynamodb:BatchGetItem
-                  - dynamodb:BatchWriteItem
                 Resource:
                   - !GetAtt DynamoDBTableName.Arn
 
@@ -132,7 +126,6 @@ Resources:
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
       Name: DynamoDBDataSource
-      Description: Testing the DynamoDB DataSource Type
       Type: AMAZON_DYNAMODB
       ServiceRoleArn: !GetAtt AppSyncDynamoDBDataSourceRole.Arn
       DynamoDBConfig:
@@ -160,8 +153,8 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !GetAtt EchoFunction.Arn
-                  - !Sub ${EchoFunction.Arn}:* # Allow all versions and aliases of the function
+                  - !GetAtt AppSyncEventHandler.Arn
+                  - !Sub ${AppSyncEventHandler.Arn}:* # Allow all versions and aliases of the function
 
   AppSyncLambdaDataSource:
     Type: AWS::AppSync::DataSource
@@ -172,12 +165,12 @@ Resources:
       Type: AWS_LAMBDA
       ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
       LambdaConfig:
-        LambdaFunctionArn: !GetAtt EchoFunction.Arn
+        LambdaFunctionArn: !GetAtt AppSyncEventHandler.Arn
 
-  EchoFunction:
+  AppSyncEventHandlerWithPowertools:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../src/backend/functions/echo
+      CodeUri: ../src/backend/functions/with-powertools
       Policies:
         - AWSLambdaBasicExecutionRole
     Metadata:
@@ -191,10 +184,25 @@ Resources:
         Sourcemap: false
         EntryPoints:
           - index.mjs
-        Banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
-        External:
-          - '@aws-sdk/client-secrets-manager'
+
+  AppSyncEventHandlerWithPowertools:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/backend/functions/without-powertools
+      Policies:
+        - AWSLambdaBasicExecutionRole
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        Minify: false
+        OutExtension:
+          - .js=.mjs
+        Target: es2020
+        Sourcemap: false
+        EntryPoints:
+          - index.mjs
+
 
 Outputs:
   EventApiId:

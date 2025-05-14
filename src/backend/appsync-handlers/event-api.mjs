@@ -11,6 +11,10 @@ export const onSubscribe = {
       util.error('Invalid Room Name - Wildcards');
     }
 
+    if(!event.identity.groups || event.identity.groups?.includes("TestGroup")) {
+      util.unauthorized();
+    }
+
     const channel = event.info.channel.path
     const room = event.info.channel.segments[1]
     const timestamp = util.time.nowEpochMilliSeconds();
