@@ -94,9 +94,28 @@ Resources:
         OnPublish:
           Behavior: DIRECT
           Integration:
-            DataSourceName: !GetAtt AppSyncLambdaDataSource.Name
+            DataSourceName: !GetAtt AppSyncLambdaPowertoolsDataSource.Name
             LambdaConfig:
               InvokeType: REQUEST_RESPONSE
+
+  AppSyncEventApiChannelNamespaceWithoutPowertools:
+    Type: AWS::AppSync::ChannelNamespace
+    Properties:
+      ApiId: !GetAtt AppSyncEventApi.ApiId
+      Name: AndMoreChatWithoutPowertools
+      CodeHandlers: "{{StringCodeHandler}}"
+      HandlerConfigs:
+        OnSubscribe:
+          Behavior: CODE
+          Integration:
+            DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+        OnPublish:
+          Behavior: DIRECT
+          Integration:
+            DataSourceName: !GetAtt AppSyncLambdaWithoutPowertoolsDataSource.Name
+            LambdaConfig:
+              InvokeType: REQUEST_RESPONSE
+
 
   AppSyncDynamoDBDataSourceRole:
     Type: AWS::IAM::Role
@@ -158,7 +177,7 @@ Resources:
                   - !GetAtt AppSyncEventHandlerWithoutPowertools.Arn
                   - !Sub ${AppSyncEventHandlerWithoutPowertools.Arn}:*
 
-  AppSyncLambdaDataSource:
+  AppSyncLambdaPowertoolsDataSource:
     Type: AWS::AppSync::DataSource
     Properties:
       ApiId: !GetAtt AppSyncEventApi.ApiId
@@ -168,6 +187,17 @@ Resources:
       ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
       LambdaConfig:
         LambdaFunctionArn: !GetAtt AppSyncEventHandlerWithPowertools.Arn
+
+  AppSyncLambdaWithoutPowertoolsDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId: !GetAtt AppSyncEventApi.ApiId
+      Name: LambdaDataSource
+      Description: Testing the Lambda DataSource Type
+      Type: AWS_LAMBDA
+      ServiceRoleArn: !GetAtt AppSyncLambdaDataSourceRole.Arn
+      LambdaConfig:
+        LambdaFunctionArn: !GetAtt AppSyncEventHandlerWithoutPowertools.Arn
 
   AppSyncEventHandlerWithPowertools:
     Type: AWS::Serverless::Function
