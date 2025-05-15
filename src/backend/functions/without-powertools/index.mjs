@@ -1,6 +1,4 @@
-import { initializePowertools, logger } from '../shared/lambda-powertools.mjs';
-
-export const handler = initializePowertools(async (event, context) => {
-  logger.info('Event:', event);
+export const handler = async (event, context) => {
+  console.log('Event:', event.events);
   return event.events;
-});
+};
